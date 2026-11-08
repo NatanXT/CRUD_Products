@@ -1,0 +1,183 @@
+<main class="pagina">
+  <!-- Cabeçalho -->
+  <header class="cabecalho">
+    <div class="cabecalho-conteudo">
+
+      <h1>CRUD de Produtos</h1>
+
+      <p>
+        Gerenciamento de produtos com Angular,
+        Spring Boot e PostgreSQL.
+      </p>
+    </div>
+
+    <!--
+      Troca de tema.
+    -->
+    <button type="button" class="alternador-tema" disabled>
+      <svg class="icone-tema" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path
+          d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41">
+        </path>
+      </svg>
+
+      <span>Tema claro</span>
+
+      <span class="trilho-tema" aria-hidden="true">
+        <span class="indicador-tema"></span>
+      </span>
+
+    </button>
+  </header>
+
+  <!-- Formulário -->
+  <section class="painel">
+    <div class="painel-cabecalho">
+      <div>
+        <h2>
+          {{ produtoEmEdicao() === null
+          ? 'Cadastrar produto'
+          : 'Editar produto' }}
+        </h2>
+
+        <p>
+          Preencha as informações para
+          {{ produtoEmEdicao() === null
+          ? 'adicionar um novo produto.'
+          : 'atualizar o produto selecionado.' }}
+        </p>
+      </div>
+    </div>
+
+    <form [formGroup]="formulario" (ngSubmit)="salvarProduto()">
+      <div class="campos">
+        <label for="nome">
+          Nome do produto
+
+          <input id="nome" type="text" formControlName="nome" maxlength="255" placeholder="Ex.: Mouse Gamer" />
+        </label>
+
+        <label for="preco">
+          Preço (R$)
+
+          <input id="preco" type="number" formControlName="preco" min="0" max="99999999.99" step="0.01" />
+        </label>
+
+        <label for="quantidade">
+          Quantidade
+
+          <input id="quantidade" type="number" formControlName="quantidade" min="0" step="1" />
+        </label>
+      </div>
+
+      <div class="acoes-formulario">
+        <button type="submit" class="botao botao-primario" [disabled]="salvando()">
+          {{ salvando()
+          ? 'Salvando...'
+          : produtoEmEdicao() === null
+          ? 'Cadastrar produto'
+          : 'Salvar alterações' }}
+        </button>
+
+        @if (produtoEmEdicao() !== null) {
+        <button type="button" class="botao botao-secundario" [disabled]="salvando()" (click)="limparFormulario()">
+          Cancelar edição
+        </button>
+        }
+      </div>
+    </form>
+  </section>
+
+  <!-- Mensagens -->
+  @if (erro()) {
+  <div class="mensagem mensagem-erro" role="alert">
+    {{ erro() }}
+  </div>
+  }
+
+  @if (sucesso()) {
+  <div class="mensagem mensagem-sucesso" role="status">
+    {{ sucesso() }}
+  </div>
+  }
+
+  <!-- Listagem -->
+  <section class="painel">
+    <div class="painel-cabecalho cabecalho-lista">
+      <div>
+        <h2>Produtos cadastrados</h2>
+        <p>Consulte e gerencie os registros disponíveis.</p>
+      </div>
+
+      <button type="button" class="botao botao-secundario" [disabled]="carregando()" (click)="listarProdutos()">
+        {{ carregando() ? 'Atualizando...' : 'Atualizar lista' }}
+      </button>
+    </div>
+
+    @if (carregando()) {
+    <div class="estado-vazio">
+      Carregando produtos...
+    </div>
+    } @else if (produtos().length === 0) {
+    <div class="estado-vazio">
+      Nenhum produto cadastrado.
+    </div>
+    } @else {
+    <div class="tabela-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Preço</th>
+            <th>Quantidade</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (produto of produtos(); track produto.id) {
+          <tr>
+            <td class="coluna-id">
+              #{{ produto.id }}
+            </td>
+
+            <td class="coluna-nome">
+              {{ produto.nome }}
+            </td>
+
+            <td>
+              {{ produto.preco | currency:'BRL' }}
+            </td>
+
+            <td>
+              {{ produto.quantidade }}
+            </td>
+
+            <td>
+              <div class="acoes-tabela">
+                <button type="button" class="botao botao-secundario" [disabled]="salvando()"
+                  (click)="editarProduto(produto)">
+                  Editar
+                </button>
+
+                <button type="button" class="botao botao-excluir" [disabled]="excluindo()"
+                  (click)="excluirProduto(produto)">
+                  Excluir
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </section>
+
+  <footer class="rodape">
+    CRUD Products - Criado por Natanzinho Games!
+  </footer>
+</main>
